@@ -37,12 +37,12 @@ struct ContentView: View {
                         .foregroundStyle(Color.yellow)
                         .onAppear{
                             callTheDucks()
-//                            insultMe()
+                            //                            insultMe()
                         }
                 }
             }else{
                 List(ducksFinal, id:\.message){ duck in
-                    Link(destination:URL(string:duck.url)!){
+                    Image(duck.url)
                         VStack {
                             AsyncImage(url:URL(string: duck.url)){ response in
                                 switch response {
@@ -57,9 +57,7 @@ struct ContentView: View {
                             .foregroundStyle(.tint)
                             Text("Hello, world!")
                         }
-                    }
-                }
-                .padding()
+                    }.padding()
             }
             Button(action: {[callTheDucks()/*, insultMe()*/]}){
                 Text("Hit Me!")
@@ -74,7 +72,7 @@ struct ContentView: View {
     }
     func callTheDucks(){
         if let apiURL =
-            URL(string:"https://random-d.uk/api/v2/randomimg"){
+            URL(string:"https://random-d.uk/api/v2/quack"){
             var request = URLRequest(url:apiURL)
             request.httpMethod = "GET"
             URLSession.shared.dataTask(with: request){
@@ -82,7 +80,6 @@ struct ContentView: View {
                 if let duckData = data{
                     if let ducksFromAPI = try? JSONDecoder().decode(Result.self, from: duckData){
                         ducksFinal = ducksFromAPI.ducks
-                        print(ducksFinal)
                         print(ducksFinal.count)
                     }
                 }
@@ -97,10 +94,8 @@ struct ContentView: View {
             URLSession.shared.dataTask(with: request){
                 data, response, error in
                 if let insultData = data{
-                    if let insultsFromAPI = try?
-                        JSONDecoder().decode(ResultTwo.self, from: insultData){
+                    if let insultsFromAPI = try? JSONDecoder().decode(ResultTwo.self, from: insultData){
                         insultsFinal = insultsFromAPI.insults
-                        print(insultsFinal)
                     }
                 }
             }.resume()
