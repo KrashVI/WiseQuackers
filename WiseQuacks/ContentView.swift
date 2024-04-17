@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-@State var ducks
+@State var ducks = ""
 @State var insults
 
 struct ContentView: View {
@@ -22,7 +22,7 @@ struct ContentView: View {
                     .bold()
                     .foregroundColor(.white)
                     .padding()
-            }.border(/*@START_MENU_TOKEN@*/Color.black/*@END_MENU_TOKEN@*/, width: /*@START_MENU_TOKEN@*/1/*@END_MENU_TOKEN@*/)
+            }.border(Color.black, width: /*@START_MENU_TOKEN@*/1/*@END_MENU_TOKEN@*/)
                 .cornerRadius(5.0)
                 .background(Color.gray)
                 .padding()
@@ -59,9 +59,13 @@ struct ContentView: View {
                         JSONDecoder().decode(Result.self, from: insultData){
                         insults = insultsFromAPI.items
                         print(insults)
+                    }
+                }
+                
+                #Preview {
+                    ContentView()
+                }
+            }
+        }
     }
-}
-
-#Preview {
-    ContentView()
-}
+    
