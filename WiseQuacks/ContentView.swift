@@ -6,23 +6,25 @@
 //
 
 import SwiftUI
+import Foundation
 
-struct Duck: Codable{
+struct Duck: Decodable{
     public var url: String
     public var message: String
 }
 
-struct Result: Codable {
-    var ducks: [Duck]
-}
+//struct Result: Decodable {
+//    var ducks: [Duck]
+//}
 
-struct Insult: Codable{
+struct Insult: Decodable{
     public var insult: String
+    public var number: String
 }
 
-struct ResultTwo: Codable{
-    var insults: [Insult]
-}
+//struct ResultTwo: Decodable{
+//    var insults: [Insult]
+//}
 
 struct ContentView: View {
     @State var ducksFinal: [Duck] = []
@@ -30,37 +32,48 @@ struct ContentView: View {
     @State var yes = true
     var body: some View {
         NavigationStack{
+            Text("Wise Quacks")
             if ducksFinal.count == 0{
                 VStack{
                     ProgressView().padding()
-                    Text("Wise Quacks")
                         .foregroundStyle(Color.yellow)
                         .onAppear{
                             callTheDucks()
-                            //                            insultMe()
+                            insultMe()
                         }
                 }
             }else{
-                List(ducksFinal, id:\.message){ duck in
+                ForEach(ducksFinal, id:\.message){ duck in
                     Image(duck.url)
                         VStack {
                             AsyncImage(url:URL(string: duck.url)){ response in
                                 switch response {
                                 case .success(let image):
                                     image.resizable()
-                                        .frame(width:50, height:50)
+                                        .frame(width:150, height:150)
                                 default:
                                     Image(systemName: "nosign")
                                 }
                             }
                             .imageScale(.large)
                             .foregroundStyle(.tint)
-                            Text("Hello, world!")
                         }
-                    }.padding()
+                    }
+                ForEach(insultsFinal, id:\.number){insult in
+                    Text(insult.insult)
+                }
             }
-            Button(action: {[callTheDucks()/*, insultMe()*/]}){
-                Text("Hit Me!")
+            Button(action: {callTheDucks()}){
+                Text("Duck It!")
+                    .bold()
+                    .foregroundColor(.white)
+                    .padding()
+            }.border(Color.black, width: /*@START_MENU_TOKEN@*/1/*@END_MENU_TOKEN@*/)
+                .cornerRadius(5.0)
+                .background(Color.gray)
+                .padding()
+            Button(action: {insultMe()}){
+                Text("Insult Me!")
                     .bold()
                     .foregroundColor(.white)
                     .padding()
@@ -71,34 +84,50 @@ struct ContentView: View {
         }
     }
     func callTheDucks(){
-        if let apiURL =
-            URL(string:"https://random-d.uk/api/v2/quack"){
+        if let apiURL = URL(string:"https://random-d.uk/api/v2/quack")
+        {
             var request = URLRequest(url:apiURL)
             request.httpMethod = "GET"
-            URLSession.shared.dataTask(with: request){
+            let task = URLSession.shared.dataTask(with: request)
+            {
                 data, response, error in
-                if let duckData = data{
-                    if let ducksFromAPI = try? JSONDecoder().decode(Result.self, from: duckData){
-                        ducksFinal = ducksFromAPI.ducks
-                        print(ducksFinal.count)
+                if let duckData = data
+                {
+                    do{
+                        if let ducksFromAPI = try?
+                            JSONDecoder().decode(Duck.self, from: duckData)
+                        {
+                            ducksFinal = [ducksFromAPI]
+                            print(ducksFinal)
+                        }
                     }
                 }
-            }.resume()
+            }
+            task.resume()
         }
     }
+    
     func insultMe(){
-        if let apiURL =
-            URL(string:"https://evilinsult.com/generate_insult.php?lang=en&type=json"){
+        if let apiURL = URL(string:"https://evilinsult.com/generate_insult.php?lang=en&type=json")
+        {
             var request = URLRequest(url:apiURL)
             request.httpMethod = "GET"
-            URLSession.shared.dataTask(with: request){
+            let task = URLSession.shared.dataTask(with: request)
+            {
                 data, response, error in
-                if let insultData = data{
-                    if let insultsFromAPI = try? JSONDecoder().decode(ResultTwo.self, from: insultData){
-                        insultsFinal = insultsFromAPI.insults
+                if let insultData = data
+                {
+                    do{
+                        if let insultsFromAPI = try?
+                            JSONDecoder().decode(Insult.self, from: insultData)
+                        {
+                            insultsFinal = [insultsFromAPI]
+                            print(insultsFinal)
+                        }
                     }
                 }
-            }.resume()
+            }
+            task.resume()
         }
     }
 }
